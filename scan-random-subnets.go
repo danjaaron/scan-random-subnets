@@ -21,6 +21,9 @@ func main() {
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
     defer cancel()
 
+    // set random number seed
+    rand.Seed(time.Now().Unix())
+
     // handle command line arguments 
     port := os.Args[1]
     maxIters, arg_err := strconv.Atoi(os.Args[2])
