@@ -10,6 +10,7 @@ import (
     "strconv"
 
     "github.com/Ullaakut/nmap/v2"
+    "github.com/cheggaaa/pb/v3"
 )
 
 func makeRandomIP() string {
@@ -27,6 +28,7 @@ func main() {
     // handle command line arguments 
     port := os.Args[1]
     maxIters, arg_err := strconv.Atoi(os.Args[2])
+    bar := pb.StartNew(maxIters)
 
     // prepare logging
     f, err := os.OpenFile(fmt.Sprintf("%s.log", port),
@@ -47,7 +49,6 @@ func main() {
 	    target := makeRandomIP()
 	    targetStr := fmt.Sprintf("TARGET=%s PORT=%s (%d/%d)", target, port, numIters, maxIters)
 	    logger.Printf(targetStr)
-	    fmt.Printf(targetStr)
 
 	    // prepare scanner
 	    scanner, err := nmap.NewScanner(
@@ -75,7 +76,7 @@ func main() {
 		    continue
 		}
 
-		fmt.Printf("Host %q:\n", host.Addresses[0])
+		logger.Printf("Host %q:\n", host.Addresses[0])
 
 		for _, port := range host.Ports {
 		    logger.Printf("\tPort %d/%s %s %s\n", port.ID, port.Protocol, port.State, port.Service.Name)
@@ -83,5 +84,9 @@ func main() {
 	    }
 
 	    logger.Printf("Nmap done: %d hosts up scanned in %3f seconds\n", len(result.Hosts), result.Stats.Finished.Elapsed)
+
+	    // progress bar
+	    bar.Increment()
     }
+    bar.Finish()
 }
