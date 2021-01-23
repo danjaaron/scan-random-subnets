@@ -14,7 +14,7 @@ import (
 )
 
 func makeRandomIP() string {
-	subnet := fmt.Sprintf("%d.%d.%d.*", rand.Intn(255), rand.Intn(255), rand.Intn(255))
+	subnet := fmt.Sprintf("%d.%d.%d.*", 1+rand.Intn(254), rand.Intn(255), rand.Intn(255))
 	return subnet
 }
 
@@ -57,7 +57,7 @@ func main() {
 		nmap.WithContext(ctx),
 	    )
 	    if err != nil {
-		logger.Fatalf("unable to create nmap scanner: %v", err)
+		logger.Printf("unable to create nmap scanner: %v", err)
 	    }
 
 	    // scan
