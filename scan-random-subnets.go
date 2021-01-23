@@ -8,7 +8,6 @@ import (
     "math/rand"
     "strconv"
 
-    //"github.com/Ullaakut/nmap/v2"
     "github.com/dean2021/go-nmap"
     "github.com/cheggaaa/pb/v3"
 )
@@ -70,52 +69,11 @@ func main() {
 
 	    for _, host := range result.Hosts {
 		ipAddr := host.Addresses[0].Addr
-		for _, port := range host.Ports {
-			portStr := strconv.Itoa(port.PortId)
-			servicesStr := port.Service.Name
-			logger.Printf(ipAddr, portStr, servicesStr)
+		for _, hostPort := range host.Ports {
+			//servicesStr := port.Service.Name
+			logger.Printf(fmt.Sprintf("%s: %s/%s", ipAddr, port, hostPort.State))
 		}
 	}
-	    
-	    /*
-	    scanner, err := nmap.NewScanner(
-		nmap.WithTargets(target),
-		nmap.WithPorts(os.Args[1]),
-		nmap.WithContext(ctx),
-	    )
-	    if err != nil {
-		logger.Printf("unable to create nmap scanner: %v", err)
-		continue
-	    }
-
-	    // scan
-	    result, warnings, err := scanner.Run()
-	    bar.Increment()
-	    if err != nil {
-		logger.Printf("unable to run nmap scan: %v", err)
-		continue
-	    }
-
-	    if warnings != nil {
-		logger.Printf("Warnings: \n %v", warnings)
-	    }
-	    
-
-	    // Use the results to print an example output
-	    for _, host := range result.Hosts {
-		if len(host.Ports) == 0 || len(host.Addresses) == 0 {
-		    continue
-		}
-
-		logger.Printf("Host %q:\n", host.Addresses[0])
-
-		for _, port := range host.Ports {
-		    logger.Printf("\tPort %d/%s %s %s\n", port.ID, port.Protocol, port.State, port.Service.Name)
-		}
-	    }
-
-	    logger.Printf("Nmap done: %d hosts up scanned in %3f seconds\n", len(result.Hosts), result.Stats.Finished.Elapsed)
-	    */
     }
     bar.Finish()
 }
