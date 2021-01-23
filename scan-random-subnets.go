@@ -63,6 +63,7 @@ func main() {
 
 	    // scan
 	    result, warnings, err := scanner.Run()
+	    bar.Increment()
 	    if err != nil {
 		logger.Printf("unable to run nmap scan: %v", err)
 		continue
@@ -87,8 +88,6 @@ func main() {
 
 	    logger.Printf("Nmap done: %d hosts up scanned in %3f seconds\n", len(result.Hosts), result.Stats.Finished.Elapsed)
 
-	    // progress bar
-	    bar.Increment()
     }
     bar.Finish()
 }
