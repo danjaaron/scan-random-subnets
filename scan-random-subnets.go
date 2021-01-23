@@ -57,13 +57,15 @@ func main() {
 		nmap.WithContext(ctx),
 	    )
 	    if err != nil {
+		continue
 		logger.Printf("unable to create nmap scanner: %v", err)
 	    }
 
 	    // scan
 	    result, warnings, err := scanner.Run()
 	    if err != nil {
-		logger.Fatalf("unable to run nmap scan: %v", err)
+		continue
+		logger.Printf("unable to run nmap scan: %v", err)
 	    }
 
 	    if warnings != nil {
