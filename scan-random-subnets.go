@@ -9,7 +9,6 @@ import (
     "strconv"
 
     "github.com/dean2021/go-nmap"
-    "github.com/cheggaaa/pb/v3"
 )
 
 func makeRandomIP() string {
@@ -23,12 +22,11 @@ func main() {
     rand.Seed(time.Now().Unix())
 
     // handle command line arguments 
-    port := os.Args[1]
-    maxIters, arg_err := strconv.Atoi(os.Args[2])
-    bar := pb.StartNew(maxIters)
+    ports := os.Args[1]
+    fmt.Println(ports)
 
     // prepare logging
-    f, err := os.OpenFile(fmt.Sprintf("%s.log", port),
+    f, err := os.OpenFile(fmt.Sprintf("%s.log", ports),
     os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
 	    log.Println(err)
@@ -37,26 +35,26 @@ func main() {
     logPrefix := "scanner: "
     logger := log.New(f, logPrefix, log.LstdFlags)
 
-    if arg_err != nil {
-	    logger.Fatalf("unable to set number of iterations: %v", err)
-    }
+    // condition to stop scanning
+    breakLoop := false
 
-    for numIters:=0; numIters<maxIters; numIters++ {
+    for {
 	    // get subnet target
 	    target := makeRandomIP()
-	    targetStr := fmt.Sprintf("TARGET=%s PORT=%s (%d/%d)", target, port, numIters, maxIters)
-	    logger.Printf(targetStr)
+	    if len(os.Args) > 2 {
+		    target = os.Args[2]
+		    breakLoop = true
+	    }
 
 	    // prepare scanner
 	    n := nmap.New()
-	    args := []string{"-n"}
+	    args := []string{"-n", "-sV"}
 	    n.SetArgs(args...)
-	    n.SetPorts(port)
+	    n.SetPorts(ports)
 	    n.SetHosts(target)
 
 	    // scan
 	    err := n.Run()
-	    bar.Increment()
 	    if err != nil {
 		    logger.Printf("scanner failed: ", err)
 	    }
@@ -70,10 +68,15 @@ func main() {
 	    for _, host := range result.Hosts {
 		ipAddr := host.Addresses[0].Addr
 		for _, hostPort := range host.Ports {
-			//servicesStr := port.Service.Name
-			logger.Printf(fmt.Sprintf("%s: %s/%s", ipAddr, port, hostPort.State))
+			serviceName := hostPort.Service.Name
+			portState := hostPort.State.State
+			portStr := strconv.Itoa(hostPort.PortId)
+			logger.Printf(fmt.Sprintf("%s: %s/%s %s", ipAddr, portStr, portState, serviceName))
 		}
 	}
+	
+	if breakLoop {
+		break
+	}
     }
-    bar.Finish()
 }
